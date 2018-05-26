@@ -79,6 +79,9 @@ class iterator2gb implements SeekableIterator {
 
     /**
      * добиваем кэш до строки $pos
+     * @param $pos
+     * @param int $found
+     * @return int
      */
     private function readtill($pos,$found=-1)
     {
@@ -120,6 +123,9 @@ class iterator2gb implements SeekableIterator {
 
     /**
      * Ищем пару для чтения буфера
+     * @param $pos
+     * @param $found
+     * @return bool|int|string
      */
     private function scan($pos,&$found){
         // todo: искать бинарно?

@@ -32,7 +32,7 @@ $start=microtime(true);
     }
 
 } catch (OutOfBoundsException $e) {
-    echo $e->getMessage();
+    echo $e->getMessage().PHP_EOL;
 }
 
 printf('spent:%.02f'.PHP_EOL, microtime(true)-$start);
