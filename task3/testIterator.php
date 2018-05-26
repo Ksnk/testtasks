@@ -9,8 +9,11 @@
 include 'iterator2gb.php';
 
 try {
-
-    $it = new iterator2gb('text.txt');
+$start=microtime(true);
+    $it = new iterator2gb(
+        'text.txt'
+   // 'words.txt'
+    );
 
     echo $it->current(), "\n";
     foreach(
@@ -32,4 +35,5 @@ try {
     echo $e->getMessage();
 }
 
+printf('spent:%.02f'.PHP_EOL, microtime(true)-$start);
 //print_r($it->stat);

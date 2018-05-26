@@ -23,6 +23,7 @@ class iterator2gb implements SeekableIterator {
 
     // array of {position->filepos}
     private
+    // todo: сохранять индекс в memcache
     /** @var array массив соответствий позиций и смещений в файле */
         $cache=[],
     /** @var boolean дочитано до конца файла, кеш полон */
@@ -93,13 +94,25 @@ class iterator2gb implements SeekableIterator {
             $this->buf = fread($this->handle, self::MAXBUF);
             $this->stat['fread']++;
             // todo: проверить, не тут ли тормозим?
+            // альтернатива. Быстрее на ~80%
+            if(false!==($x=strpos($this->buf,"\n"))) {
+                $found = $this->top;
+                do {
+                    $disp = $x+1;
+                    $this->top++;
+                }
+                while (false !== ($x = strpos($this->buf, "\n", $disp)));
+                $this->cache[$this->top] = $fpos + $disp;
+            }
+            // */
+            /* // первый вариант, на удивление быстрый
             if(preg_match_all('/\n/', $this->buf, $m, PREG_OFFSET_CAPTURE)) {
                 $found = $this->top;
                 $this->top += count($m[0]);
                 $x = array_pop($m[0]);
                 $this->cache[$this->top] = $fpos + $x[1] + 1;
             }
-
+            //*/
             $fpos += strlen($this->buf);
         }
         if(feof($this->handle)) {
@@ -132,6 +145,7 @@ class iterator2gb implements SeekableIterator {
      */
     private function gotopos($pos){
         $found=-1;
+        if(!$this->handle) return ;
         if(false===($fin=$this->scan($pos,$found))) { // нечитанное
             $found=$this->readtill($pos,$found);
         }
@@ -173,6 +187,7 @@ class iterator2gb implements SeekableIterator {
     }
 
     public function current() {
+        // todo: резать буфер на строки не всегда, а только для нового буфера
         $this->gotopos($this->position);
         $l=explode("\n",$this->buf);
         return $l[$this->position-$this->start];
