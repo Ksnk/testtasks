@@ -89,9 +89,10 @@ class iterator2gb implements SeekableIterator {
         $fpos=$this->cache[$found];
         fseek($this->handle, $fpos); // один раз
         $this->stat['fseek']++;
+        $tail=0; // длина хвоста, чтобы все строки вмещались в буфер
         while (!feof($this->handle) && $this->top<=$pos) {
             // считаем строки
-            $this->buf = fread($this->handle, self::MAXBUF);
+            $this->buf = fread($this->handle, self::MAXBUF-$tail);
             $this->stat['fread']++;
             // todo: проверить, не тут ли тормозим?
             // альтернатива. Быстрее на ~80%
@@ -103,6 +104,7 @@ class iterator2gb implements SeekableIterator {
                 }
                 while (false !== ($x = strpos($this->buf, "\n", $disp)));
                 $this->cache[$this->top] = $fpos + $disp;
+                $tail=self::MAXBUF-$disp;
             }
             // */
             /* // первый вариант, на удивление быстрый
@@ -154,7 +156,7 @@ class iterator2gb implements SeekableIterator {
             $this->start=$found;
             fseek($this->handle, $fpos);
             $this->stat['fseek']++;
-            $this->buf = fread($this->handle, self::MAXBUF+4096); // до границы и еще чуток, некрасивенько...
+            $this->buf = fread($this->handle, self::MAXBUF);
             $this->stat['fread']++;
         }
     }
