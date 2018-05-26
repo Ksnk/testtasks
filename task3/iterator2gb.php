@@ -92,29 +92,24 @@ class iterator2gb implements SeekableIterator {
         $tail=0; // длина хвоста, чтобы все строки вмещались в буфер
         while (!feof($this->handle) && $this->top<=$pos) {
             // считаем строки
-            $this->buf = fread($this->handle, self::MAXBUF-$tail);
+            $this->buf = fread($this->handle, self::MAXBUF);
             $this->stat['fread']++;
-            // todo: проверить, не тут ли тормозим?
-            // альтернатива. Быстрее на ~80%
+            // Считаем, что нормально.
+            // каждая соседняя пара меток индекса меньше, чем длина буфера
+            $disp=0;
             if(false!==($x=strpos($this->buf,"\n"))) {
                 $found = $this->top;
                 do {
+                    if($x+1+$tail>self::MAXBUF){
+                        $this->cache[$this->top] = $fpos + $disp;
+                        $tail=self::MAXBUF-$disp;
+                    }
                     $disp = $x+1;
                     $this->top++;
                 }
                 while (false !== ($x = strpos($this->buf, "\n", $disp)));
-                $this->cache[$this->top] = $fpos + $disp;
-                $tail=self::MAXBUF-$disp;
             }
-            // */
-            /* // первый вариант, на удивление быстрый
-            if(preg_match_all('/\n/', $this->buf, $m, PREG_OFFSET_CAPTURE)) {
-                $found = $this->top;
-                $this->top += count($m[0]);
-                $x = array_pop($m[0]);
-                $this->cache[$this->top] = $fpos + $x[1] + 1;
-            }
-            //*/
+            $this->cache[$this->top] = $fpos + $disp;
             $fpos += strlen($this->buf);
         }
         if(feof($this->handle)) {
