@@ -1,0 +1,40 @@
+.table{
+    display:table;
+    border-bottom: 3px solid #f3f3f3;
+}
+.table-row{
+    display:table-row;
+    border-bottom: 1px solid #a7a7a7;
+}
+.table-row span
+{
+    display:table-cell;
+    border-left:1px solid #a7a7a7;
+}
+
+form label {
+    width: 200px;
+    display: inline-block;
+    vertical-align: top;
+}
+form .control {
+    display: inline-block;
+}
+form input[type=text], form input[type=email] {
+    width: 250px;
+    height: 20px;
+}
+form textarea {
+    width: 250px;
+    height: 80px;
+}
+form .clear {
+    line-height: 1px;
+    overflow: hidden;
+    height: 1px;
+    clear: both;
+    margin: 5px 0;
+}
+.error, .red {
+    color: #b53a37!important;
+}
